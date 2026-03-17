@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FixRidex - Mechanic App</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#070810;--card:#0f1022;--card2:#141629;--border:rgba(255,255,255,0.07);--accent:#FF6B35;--accent2:#FFB347;--blue:#4A9EFF;--green:#3DD68C;--red:#FF4757;--text:#F0F0F8;--muted:rgba(240,240,248,0.4);--font-head:'Baloo 2',cursive;--font-body:'Noto Sans',sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;display:flex;justify-content:center}
+  #app{width:100%;max-width:430px;min-height:100vh;position:relative;overflow-x:hidden;background:var(--bg)}
+  .screen{display:none;flex-direction:column;min-height:100vh;animation:fadeIn 0.3s ease}
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* SPLASH */
+  #splash{background:linear-gradient(160deg,#0f1022,#1a0a05);align-items:center;justify-content:center;gap:16px}
+  .splash-logo{width:90px;height:90px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 20px 60px rgba(255,107,53,0.4);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 20px 60px rgba(255,107,53,0.4)}50%{box-shadow:0 20px 80px rgba(255,107,53,0.7)}}
+  .splash-title{font-family:var(--font-head);font-size:38px;font-weight:800}
+  .splash-sub{font-size:15px;color:var(--muted);text-align:center;padding:0 20px}
+  .splash-btn{margin-top:40px;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:18px;padding:16px 48px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font-head);box-shadow:0 8px 32px rgba(255,107,53,0.4)}
+
+  /* TOPBAR */
+  .topbar{padding:52px 20px 16px;background:linear-gradient(180deg,#0f1022,transparent);position:sticky;top:0;z-index:50}
+  .topbar-row{display:flex;align-items:center;justify-content:space-between}
+  .page-title{font-family:var(--font-head);font-size:24px;font-weight:800}
+  .notif-btn{width:40px;height:40px;background:var(--card);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid var(--border);cursor:pointer;position:relative}
+  .notif-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+  /* SEARCH */
+  .search-wrap{padding:0 20px 16px}
+  .search-box{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px 16px}
+  .search-box input{background:none;border:none;outline:none;color:var(--text);font-size:14px;flex:1}
+  .search-box input::placeholder{color:var(--muted)}
+
+  /* CONTENT */
+  .scroll-content{flex:1;overflow-y:auto;padding-bottom:90px}
+  .scroll-content::-webkit-scrollbar{display:none}
+  .section{padding:0 20px 24px}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .sec-title{font-family:var(--font-head);font-size:18px;font-weight:700}
+  .see-all{font-size:12px;color:var(--accent);cursor:pointer;font-weight:600}
+
+  /* HERO */
+  .hero{margin:0 20px 24px}
+  .hero-card{background:linear-gradient(135deg,#1a0d05,#2a1208);border:1px solid rgba(255,107,53,0.25);border-radius:22px;padding:22px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+  .hero-tag{display:inline-block;background:rgba(255,107,53,0.15);color:var(--accent);font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:1px}
+  .hero-title{font-family:var(--font-head);font-size:20px;font-weight:800;margin-bottom:4px}
+  .hero-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .hero-btn{background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:12px;padding:10px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-head)}
+  .hero-emoji{font-size:64px;opacity:0.85}
+
+  /* SERVICES */
+  .services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .service-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 8px;text-align:center;cursor:pointer;transition:all 0.2s}
+  .service-card:active{transform:scale(0.95)}
+  .svc-icon{font-size:28px;margin-bottom:6px}
+  .svc-name{font-size:10px;font-weight:600;color:rgba(240,240,248,0.85);line-height:1.3}
+
+  /* MECHANIC CARD */
+  .mechanic-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px;display:flex;gap:14px;margin-bottom:12px;position:relative}
+  .mech-avatar{width:58px;height:58px;border-radius:18px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:1px solid var(--border)}
+  .mech-name{font-family:var(--font-head);font-weight:700;font-size:16px;margin-bottom:2px}
+  .mech-skill{font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600}
+  .mech-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .stat{font-size:11px;color:var(--muted)}
+  .verified{background:rgba(61,214,140,0.12);color:var(--green);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+  .emergency-badge{background:rgba(255,71,87,0.12);color:var(--red);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+  .home-badge{background:rgba(74,158,255,0.12);color:var(--blue);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+  .book-btn{margin-left:auto;align-self:center;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:12px;padding:10px 16px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-head);white-space:nowrap;flex-shrink:0}
+
+  /* LOADING */
+  .loading-box{text-align:center;padding:40px 20px;color:var(--muted)}
+  .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* BOTTOM NAV */
+  .bottom-nav{position:fixed;bottom:0;width:100%;max-width:430px;background:rgba(7,8,16,0.96);border-top:1px solid var(--border);display:flex;padding:10px 0 24px;backdrop-filter:blur(20px);z-index:100}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
+  .nav-icon{font-size:22px;line-height:1}
+  .nav-label{font-size:9px;font-weight:700;letter-spacing:0.5px;color:var(--muted);font-family:var(--font-head)}
+  .nav-item.active .nav-label{color:var(--accent)}
+  .nav-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:2px}
+
+  /* BOOKINGS */
+  .booking-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;margin-bottom:14px}
+  .status-badge{display:inline-block;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+  .booking-title{font-family:var(--font-head);font-size:17px;font-weight:700;margin-bottom:4px}
+  .booking-sub{font-size:13px;color:var(--muted);margin-bottom:4px}
+  .booking-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .sec-btn{border-radius:12px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-head);border:none}
+
+  /* PROFILE */
+  .profile-header{padding:52px 20px 24px;text-align:center}
+  .profile-avatar{width:88px;height:88px;border-radius:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 14px;box-shadow:0 12px 40px rgba(255,107,53,0.35)}
+  .profile-name{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:4px}
+  .profile-email{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .pstat{flex:1;text-align:center;padding:12px}
+  .pstat-val{font-family:var(--font-head);font-size:20px;font-weight:800}
+  .pstat-label{font-size:11px;color:var(--muted);margin-top:2px}
+  .menu-item{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--border)}
+  .menu-icon{font-size:22px;width:32px;text-align:center}
+  .menu-label{font-size:14px;font-weight:600;flex:1}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity 0.25s}
+  .modal-overlay.open{opacity:1;pointer-events:all}
+  .modal-box{width:100%;max-width:430px;background:#0f1022;border-radius:28px 28px 0 0;padding:28px 20px 44px;border:1px solid var(--border);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+  .modal-overlay.open .modal-box{transform:translateY(0)}
+  .modal-handle{width:40px;height:4px;border-radius:4px;background:var(--border);margin:0 auto 20px}
+  .modal-title{font-family:var(--font-head);font-size:20px;font-weight:800;margin-bottom:6px}
+  .modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+  /* TIME SLOTS */
+  .time-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .time-slot{padding:14px 12px;border-radius:14px;border:1px solid var(--border);background:var(--card);cursor:pointer;text-align:center}
+  .time-slot.sel{border-color:var(--accent);background:rgba(255,107,53,0.12)}
+  .time-slot .time{font-family:var(--font-head);font-size:15px;font-weight:700}
+  .time-slot .day{font-size:11px;color:var(--muted);margin-top:2px}
+
+  /* SUCCESS */
+  .success-box{text-align:center;padding:10px 0}
+  .success-emoji{font-size:72px;margin-bottom:16px;animation:bounce 0.5s ease}
+  @keyframes bounce{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .success-title{font-family:var(--font-head);font-size:24px;font-weight:800;margin-bottom:8px}
+  .success-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .booking-id-box{background:rgba(61,214,140,0.08);border:1px solid rgba(61,214,140,0.2);border-radius:16px;padding:16px;margin-bottom:20px}
+  .bid-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .bid-val{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--green)}
+
+  /* WHATSAPP BTN */
+  .wa-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#25D366;border:none;border-radius:16px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-head);margin-bottom:12px}
+
+  /* TOAST */
+  .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#000;font-weight:700;font-size:13px;padding:12px 24px;border-radius:30px;z-index:9999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;font-family:var(--font-head)}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* FORM */
+  .form-group{margin-bottom:14px}
+  .form-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-weight:600}
+  .form-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none}
+  .form-input:focus{border-color:var(--accent)}
+  select.form-input{appearance:none}
+
+  /* TYPE PILLS */
+  .type-pills{display:flex;gap:10px;margin-bottom:16px}
+  .type-pill{flex:1;padding:12px;border-radius:14px;border:2px solid var(--border);background:var(--card);cursor:pointer;text-align:center;font-size:12px;font-weight:700;transition:all 0.2s}
+  .type-pill.sel-emergency{border-color:var(--red);background:rgba(255,71,87,0.1);color:var(--red)}
+  .type-pill.sel-home{border-color:var(--blue);background:rgba(74,158,255,0.1);color:var(--blue)}
+
+  /* AUTH SCREENS */
+  #login,#signup{background:linear-gradient(160deg,#0f1022,#1a0a05);align-items:center;justify-content:center;padding:20px}
+  .auth-logo{width:70px;height:70px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px;box-shadow:0 16px 48px rgba(255,107,53,0.4)}
+  .auth-title{font-family:var(--font-head);font-size:28px;font-weight:800;text-align:center;margin-bottom:4px}
+  .auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+  .auth-card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px}
+  .auth-tab-row{display:flex;background:var(--card2);border-radius:14px;padding:4px;margin-bottom:20px}
+  .auth-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;border-radius:11px;cursor:pointer;font-family:var(--font-head);transition:all 0.2s;color:var(--muted)}
+  .auth-tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+  .auth-divider{text-align:center;font-size:12px;color:var(--muted);margin:14px 0;position:relative}
+  .auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+  .auth-divider::before{left:0}.auth-divider::after{right:0}
+  .auth-google-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:13px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-head);display:flex;align-items:center;justify-content:center;gap:10px}
+  .auth-submit-btn{width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:14px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-head);margin-top:4px;box-shadow:0 6px 24px rgba(255,107,53,0.35)}
+  .auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
+  .auth-switch span{color:var(--accent);cursor:pointer;font-weight:700}
+  .auth-error{background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.25);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;display:none}
+  .user-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 14px;cursor:pointer}
+  .user-chip-avatar{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:15px}
+  .user-chip-name{font-size:12px;font-weight:700;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SPLASH -->
+  <div class="screen active" id="splash">
+    <div class="splash-logo">🔧</div>
+    <div class="splash-title">FixRidex</div>
+    <div class="splash-sub">Har cheez ka mechanic, ek jagah<br>🏠 Home Service • 🚗 Road Emergency</div>
+    <button class="splash-btn" onclick="goTo('login')">Shuru Karo 🚀</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="screen" id="login">
+    <div style="width:100%;max-width:390px;margin:auto;padding:20px 0">
+      <div class="auth-logo">🔧</div>
+      <div class="auth-title">FixRidex</div>
+      <div class="auth-sub">Login karke shuru karo 🚀</div>
+      <div class="auth-card">
+        <div id="loginError" class="auth-error"></div>
+        <div class="form-group">
+          <label class="form-label">📧 Email</label>
+          <input class="form-input" id="login-email" type="email" placeholder="aapka@email.com" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Password</label>
+          <div style="position:relative">
+            <input class="form-input" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:48px">
+            <span onclick="togglePass('login-pass','eye1')" id="eye1" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;user-select:none">👁️</span>
+          </div>
+        </div>
+        <button class="auth-submit-btn" onclick="doLogin()" id="loginBtn">🚀 Login / Register</button>
+        <div style="text-align:right;margin-top:8px">
+          <span onclick="forgotPassword()" style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600">🔑 Password bhul gaye?</span>
+        </div>
+        <div class="auth-divider">ya</div>
+        <button class="auth-google-btn" onclick="doGoogleLogin()">
+          <span style="font-size:18px">G</span> Google se Login
+        </button>
+        <div style="background:rgba(74,158,255,0.08);border:1px solid rgba(74,158,255,0.2);border-radius:12px;padding:10px 14px;margin-top:14px;font-size:11px;color:var(--blue);text-align:center">
+          💡 Naya user ho ya purana — email + password daalo, sab automatic hoga!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP -->
+  <div class="screen" id="signup">
+    <div style="width:100%;max-width:390px;margin:auto;padding:20px 0">
+      <div class="auth-logo">🔧</div>
+      <div class="auth-title">Account Banao</div>
+      <div class="auth-sub">FixRidex join karo — free hai! 🎉</div>
+      <div class="auth-card">
+        <div id="signupError" class="auth-error"></div>
+        <div class="form-group">
+          <label class="form-label">👤 Aapka Naam</label>
+          <input class="form-input" id="signup-name" type="text" placeholder="e.g. Rahul Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📧 Email</label>
+          <input class="form-input" id="signup-email" type="email" placeholder="aapka@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📞 Phone Number</label>
+          <input class="form-input" id="signup-phone" type="tel" placeholder="e.g. 9876543210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Password (min 6 characters)</label>
+          <div style="position:relative">
+            <input class="form-input" id="signup-pass" type="password" placeholder="••••••••" style="padding-right:48px">
+            <span onclick="togglePass('signup-pass','eye2')" id="eye2" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;user-select:none">👁️</span>
+          </div>
+        </div>
+        <button class="auth-submit-btn" onclick="doSignup()" id="signupBtn">🎉 Account Banao</button>
+        <div class="auth-divider">ya</div>
+        <button class="auth-google-btn" onclick="doGoogleLogin()">
+          <span style="font-size:18px">G</span> Google se Register
+        </button>
+        <div class="auth-switch">Already account hai? <span onclick="goTo('login')">Login Karo →</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="home">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <div style="font-size:12px;color:var(--muted)" id="greetText">Namaste! 👋</div>
+          <div class="page-title">Kya fix karwana hai?</div>
+        </div>
+        <div id="userChip" class="user-chip" onclick="confirmLogout()" style="display:none">
+          <div class="user-chip-avatar">👤</div>
+          <div class="user-chip-name" id="chipName">User</div>
+          <span style="font-size:10px;color:var(--muted)">⏏</span>
+        </div>
+        <div class="notif-btn" id="notifBtn" onclick="showToast('Notifications coming soon!')">🔔<div class="notif-dot"></div></div>
+      </div>
+    </div>
+    <div class="search-wrap" style="padding-top:14px">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Service ya mechanic dhundho..." oninput="filterMechanics(this.value)">
+      </div>
+    </div>
+    <div class="scroll-content">
+      <div class="hero">
+        <div class="hero-card">
+          <div>
+            <div class="hero-tag">🔥 FIREBASE LIVE</div>
+            <div class="hero-title">Real Mechanics<br>Aapke Paas</div>
+            <div class="hero-sub">🏠 Home • 🚗 Emergency — 24/7</div>
+            <button class="hero-btn" onclick="goTo('addMechanic')">Mechanic Add Karo</button>
+          </div>
+          <div class="hero-emoji">🛠️</div>
+        </div>
+      </div>
+
+      <!-- FILTER TABS -->
+      <div style="padding:0 20px 16px;display:flex;gap:10px">
+        <button onclick="filterByType('all')" id="tab-all" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--accent);background:rgba(255,107,53,0.15);color:var(--accent);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--font-head)">🔧 Sab</button>
+        <button onclick="filterByType('home')" id="tab-home" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--font-head)">🏠 Home</button>
+        <button onclick="filterByType('emergency')" id="tab-emergency" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--font-head)">🚗 Emergency</button>
+      </div>
+
+      <div class="section">
+        <div class="sec-head">
+          <div class="sec-title">Mechanics 🔴 Live</div>
+          <div class="see-all" onclick="goTo('addMechanic')">+ Add</div>
+        </div>
+        <div id="mechanicsList">
+          <div class="loading-box"><div class="loading-spinner"></div><div>Firebase se load ho raha hai...</div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-head"><div class="sec-title">Services</div></div>
+        <div class="services-grid" id="servicesGrid"></div>
+      </div>
+    </div>
+    <div class="bottom-nav" id="nav-home"></div>
+  </div>
+
+  <!-- ADD MECHANIC -->
+  <div class="screen" id="addMechanic">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px;cursor:pointer" onclick="goTo('home')">←</span>
+          <div class="page-title">➕ Mechanic Add Karo</div>
+        </div>
+        <!-- SAVE BUTTON AT TOP RIGHT -->
+        <button id="addBtnTop" onclick="addMechanicToFirebase()" style="background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:14px;padding:10px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-head)">💾 Save</button>
+      </div>
+    </div>
+    <div class="scroll-content" style="padding:0 20px">
+      <div style="height:8px"></div>
+
+      <!-- MECHANIC TYPE -->
+      <div class="form-group">
+        <label class="form-label">⚡ Mechanic Type *</label>
+        <div class="type-pills">
+          <div class="type-pill sel-home" id="pill-home" onclick="selectType('home')">
+            🏠 Home Service<br><span style="font-size:10px;font-weight:400">Accept/Reject kar sakta</span>
+          </div>
+          <div class="type-pill" id="pill-emergency" onclick="selectType('emergency')" style="border-color:var(--border);color:var(--muted)">
+            🚗 Emergency<br><span style="font-size:10px;font-weight:400">Reject nahi kar sakta</span>
+          </div>
+        </div>
+        <input type="hidden" id="inp-type" value="home">
+      </div>
+
+      <div class="form-group"><label class="form-label">👨‍🔧 Naam *</label><input class="form-input" id="inp-naam" placeholder="e.g. Ramesh Kumar" type="text"></div>
+      <div class="form-group"><label class="form-label">🔧 Skill *</label><input class="form-input" id="inp-skill" placeholder="e.g. AC Expert, Car Mechanic" type="text"></div>
+      <div class="form-group"><label class="form-label">📞 WhatsApp Number *</label><input class="form-input" id="inp-phone" placeholder="e.g. 9876543210" type="tel"></div>
+      <div class="form-group"><label class="form-label">📍 Area *</label><input class="form-input" id="inp-area" placeholder="e.g. Delhi, Mumbai" type="text"></div>
+
+      <!-- RATING + PRICE SIDE BY SIDE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">⭐ Rating</label><input class="form-input" id="inp-rating" placeholder="4.8" type="number" min="1" max="5" step="0.1"></div>
+        <div class="form-group"><label class="form-label">💰 Price</label><input class="form-input" id="inp-price" placeholder="₹299" type="text"></div>
+      </div>
+
+      <!-- BIG SAVE BUTTON AT BOTTOM TOO -->
+      <button id="addBtn" onclick="addMechanicToFirebase()" style="width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:16px;padding:16px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--font-head);margin-top:4px">🔥 Save Karo</button>
+      <div style="height:20px"></div>
+    </div>
+    <div class="bottom-nav" id="nav-addMechanic"></div>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div class="screen" id="bookings">
+    <div class="topbar"><div class="topbar-row"><div class="page-title">📋 Meri Bookings</div></div></div>
+    <div class="scroll-content" style="padding:0 20px"><div id="bookingsList"></div></div>
+    <div class="bottom-nav" id="nav-bookings"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="screen" id="profile">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">👑</div>
+      <div class="profile-name" id="profileName">Jitendar</div>
+      <div class="profile-email" id="profileEmail">FixRidex App Owner</div>
+      <!-- ROW 1: Mechanics + Visitors -->
+      <div style="display:flex;background:var(--card);border-radius:18px;border:1px solid var(--border);margin-bottom:10px">
+        <div class="pstat"><div class="pstat-val" id="totalMechanics">0</div><div class="pstat-label">👨‍🔧 Mechanics</div></div>
+        <div style="width:1px;background:var(--border);margin:8px 0"></div>
+        <div class="pstat"><div class="pstat-val" id="totalVisitors">0</div><div class="pstat-label">👥 Visitors</div></div>
+      </div>
+      <!-- ROW 2: Installs + Status -->
+      <div style="display:flex;background:var(--card);border-radius:18px;border:1px solid var(--border)">
+        <div class="pstat"><div class="pstat-val" id="totalInstalls">0</div><div class="pstat-label">📲 Installs</div></div>
+        <div style="width:1px;background:var(--border);margin:8px 0"></div>
+        <div class="pstat"><div class="pstat-val" style="color:var(--green);font-size:14px">🔴 LIVE</div><div class="pstat-label">Firebase Status</div></div>
+      </div>
+    </div>
+    <div id="profileMenu"></div>
+    <div class="bottom-nav" id="nav-profile"></div>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="bookModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <div class="modal-handle"></div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCF4KAKE0DH8-xA5yn-3XjJZWMsSAjpbJ8",
+  authDomain:"fixit-ee3b3.firebaseapp.com",
+  projectId:"fixit-ee3b3",
+  storageBucket:"fixit-ee3b3.firebasestorage.app",
+  messagingSenderId:"650197369706",
+  appId:"1:650197369706:web:5972e8057f9c5956a43ec9"
+});
+var db=firebase.firestore();
+var auth=firebase.auth();
+var currentUser=null;
+
+// ===== AUTH STATE LISTENER =====
+auth.onAuthStateChanged(function(user){
+  if(user){
+    currentUser=user;
+    var displayName=user.displayName||user.email.split('@')[0]||'User';
+    // Update UI
+    var greet=document.getElementById('greetText');
+    if(greet) greet.textContent='Namaste, '+displayName.split(' ')[0]+' 👋';
+    var chip=document.getElementById('userChip');
+    var notifBtn=document.getElementById('notifBtn');
+    var chipName=document.getElementById('chipName');
+    if(chip){chip.style.display='flex';}
+    if(notifBtn){notifBtn.style.display='none';}
+    if(chipName){chipName.textContent=displayName.split(' ')[0];}
+    // Update profile screen
+    var pName=document.getElementById('profileName');
+    var pEmail=document.getElementById('profileEmail');
+    var pAvatar=document.getElementById('profileAvatar');
+    if(pName)pName.textContent=displayName;
+    if(pEmail)pEmail.textContent=user.email||'';
+    if(pAvatar)pAvatar.textContent=displayName[0].toUpperCase()||'👑';
+    // Go home if on auth screen
+    if(document.querySelector('.screen.active').id==='login'||
+       document.querySelector('.screen.active').id==='signup'){
+      goTo('home');
+    }
+  } else {
+    currentUser=null;
+    var chip=document.getElementById('userChip');
+    var notifBtn=document.getElementById('notifBtn');
+    if(chip){chip.style.display='none';}
+    if(notifBtn){notifBtn.style.display='flex';}
+  }
+});
+
+// ===== LOGIN (Smart: Try login → if new user, auto register) =====
+function doLogin(){
+  var email=document.getElementById('login-email').value.trim();
+  var pass=document.getElementById('login-pass').value.trim();
+  var btn=document.getElementById('loginBtn');
+  var errEl=document.getElementById('loginError');
+  errEl.style.display='none';
+  if(!email||!pass){showAuthError('loginError','❌ Email aur password dono bharo!');return;}
+  if(pass.length<6){showAuthError('loginError','❌ Password kam se kam 6 characters ka hona chahiye!');return;}
+  btn.textContent='⏳ Login ho raha hai...';btn.disabled=true;
+
+  // Step 1: Try to sign in
+  auth.signInWithEmailAndPassword(email,pass)
+    .then(function(result){
+      btn.textContent='🚀 Login Karo';btn.disabled=false;
+      errEl.style.display='none';
+      showToast('✅ Login ho gaya!');
+      // Firestore mein user data save/update karo (merge:true se purana data safe rahega)
+      db.collection('users').doc(result.user.uid).set({uid:result.user.uid,email:email,naam:result.user.displayName||email.split('@')[0],lastLogin:new Date().toISOString(),role:'user'},{merge:true}).catch(function(){});
+    })
+    .catch(function(e){
+      // Step 2: If wrong password — show error directly, don't try register
+      if(e.code==='auth/wrong-password'){
+        btn.textContent='🚀 Login Karo';btn.disabled=false;
+        showAuthError('loginError','❌ Password galat hai! Dobara try karo.');
+        return;
+      }
+      // Step 3: If user doesn't exist — try to register
+      if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){
+        btn.textContent='⏳ Naya account ban raha hai...';
+        var newUser=null;
+        auth.createUserWithEmailAndPassword(email,pass)
+          .then(function(result){
+            newUser=result.user;
+            // Firestore mein basic data save karo
+            return db.collection('users').doc(newUser.uid).set({
+              uid:newUser.uid,naam:email.split('@')[0],email:email,phone:'',
+              role:'user',bookings:[],
+              createdAt:new Date().toISOString(),
+              lastLogin:new Date().toISOString()
+            });
+          })
+          .then(function(){
+            btn.textContent='🚀 Login Karo';btn.disabled=false;
+            errEl.style.display='none';
+            showToast('🎉 Naya account ban gaya aur login ho gaya!');
+          })
+          .catch(function(e2){
+            btn.textContent='🚀 Login Karo';btn.disabled=false;
+            if(e2.code==='auth/email-already-in-use'){
+              showAuthError('loginError','❌ Yeh email pehle se registered hai! Password check karo.');
+            } else {
+              showAuthError('loginError','❌ '+getAuthError(e2.code));
+            }
+          });
+        return;
+      }
+      // Step 4: Any other error
+      btn.textContent='🚀 Login Karo';btn.disabled=false;
+      showAuthError('loginError','❌ '+getAuthError(e.code));
+    });
+}
+
+// ===== SIGNUP =====
+function doSignup(){
+  var name=document.getElementById('signup-name').value.trim();
+  var email=document.getElementById('signup-email').value.trim();
+  var phone=document.getElementById('signup-phone').value.trim();
+  var pass=document.getElementById('signup-pass').value.trim();
+  var btn=document.getElementById('signupBtn');
+  if(!name||!email||!pass){showAuthError('signupError','Naam, email aur password zaroori hai!');return;}
+  if(pass.length<6){showAuthError('signupError','Password kam se kam 6 characters ka hona chahiye!');return;}
+  btn.textContent='Account ban raha hai...';btn.disabled=true;
+  var newUser=null;
+  auth.createUserWithEmailAndPassword(email,pass)
+    .then(function(result){
+      newUser=result.user;
+      return newUser.updateProfile({displayName:name});
+    })
+    .then(function(){
+      return db.collection('users').doc(newUser.uid).set({
+        uid:newUser.uid,naam:name,email:email,phone:phone||'',
+        role:'user',bookings:[],
+        createdAt:new Date().toISOString(),
+        lastLogin:new Date().toISOString()
+      });
+    })
+    .then(function(){
+      btn.textContent='Account Banao';btn.disabled=false;
+      document.getElementById('signupError').style.display='none';
+      showToast('Account ban gaya! Welcome to FixRidex!');
+    })
+    .catch(function(e){
+      btn.textContent='Account Banao';btn.disabled=false;
+      showAuthError('signupError',getAuthError(e.code));
+    });
+}
+
+// ===== GOOGLE LOGIN =====
+function doGoogleLogin(){
+  var provider=new firebase.auth.GoogleAuthProvider();
+  showToast('⏳ Google pe ja rahe hain...');
+  auth.signInWithRedirect(provider).catch(function(e){
+    showToast('❌ Google login fail: '+e.message);
+  });
+}
+
+// Handle Google redirect result on page load
+auth.getRedirectResult().then(function(result){
+  if(result&&result.user){
+    showToast('✅ Google se login ho gaya!');
+  }
+}).catch(function(e){
+  if(e.code!=='auth/no-current-user'){
+    console.log('Redirect error:',e.message);
+  }
+});
+
+// ===== FORGOT PASSWORD =====
+function forgotPassword(){
+  var email=document.getElementById('login-email').value.trim();
+  if(!email){
+    showAuthError('loginError','❌ Pehle email daalo, phir "Password bhul gaye" dabao!');
+    return;
+  }
+  auth.sendPasswordResetEmail(email)
+    .then(function(){
+      document.getElementById('loginError').style.display='none';
+      showToast('✅ Password reset email bhej diya! Inbox check karo!');
+    })
+    .catch(function(e){
+      showAuthError('loginError','❌ '+getAuthError(e.code));
+    });
+}
+function togglePass(inputId, eyeId){
+  var inp=document.getElementById(inputId);
+  var eye=document.getElementById(eyeId);
+  if(inp.type==='password'){
+    inp.type='text';
+    eye.textContent='🙈';
+  } else {
+    inp.type='password';
+    eye.textContent='👁️';
+  }
+}
+
+// ===== LOGOUT =====
+function confirmLogout(){
+  if(confirm('Logout karna chahte ho?')){
+    auth.signOut().then(function(){
+      showToast('👋 Logout ho gaye!');
+      goTo('login');
+    });
+  }
+}
+
+function showAuthError(id,msg){
+  var el=document.getElementById(id);
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+
+function getAuthError(code){
+  var errors={
+    'auth/user-not-found':'Yeh email registered nahi hai!',
+    'auth/wrong-password':'Password galat hai!',
+    'auth/email-already-in-use':'Yeh email pehle se registered hai!',
+    'auth/invalid-email':'Email sahi format mein likhो!',
+    'auth/weak-password':'Password zyada strong banao!',
+    'auth/too-many-requests':'Bahut zyada tries. Thodi der baad try karo.',
+    'auth/invalid-credential':'Email ya password galat hai!'
+  };
+  return errors[code]||'Kuch error hua. Dobara try karo!';
+}
+
+var services=[
+  {icon:"❄️",name:"AC / Cooler"},{icon:"📺",name:"TV / Electronics"},
+  {icon:"🚗",name:"Car Mechanic"},{icon:"🏍️",name:"Bike Mechanic"},
+  {icon:"🔧",name:"Plumber"},{icon:"⚡",name:"Electrician"},
+  {icon:"🧊",name:"Fridge"},{icon:"🏠",name:"Carpenter"}
+];
+var navItems=[
+  {icon:"🏠",label:"Home",screen:"home"},
+  {icon:"➕",label:"Add",screen:"addMechanic"},
+  {icon:"📋",label:"Bookings",screen:"bookings"},
+  {icon:"👤",label:"Profile",screen:"profile"}
+];
+
+var allMechanics=[],myBookings=[],activeScreen="home",selectedSlot=0;
+var currentMechanic=null,selectedType="home",currentFilterType="all";
+
+// USER INFO for booking
+var userInfo={naam:"",phone:"",address:""};
+
+function goTo(screen){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(screen).classList.add('active');
+  activeScreen=screen;
+  updateNavs();
+  if(screen==='home')loadMechanics();
+  if(screen==='bookings')renderBookings();
+}
+
+function updateNavs(){
+  ['home','addMechanic','bookings','profile'].forEach(function(s){
+    var el=document.getElementById('nav-'+s);
+    if(!el)return;
+    el.innerHTML=navItems.map(function(n){
+      return '<div class="nav-item '+(activeScreen===n.screen?'active':'')+'" onclick="goTo(\''+n.screen+'\')">'
+        +'<div class="nav-icon">'+n.icon+'</div>'
+        +'<div class="nav-label">'+n.label+'</div>'
+        +(activeScreen===n.screen?'<div class="nav-dot"></div>':'')
+        +'</div>';
+    }).join('');
+  });
+}
+
+function selectType(type){
+  selectedType=type;
+  var hp=document.getElementById('pill-home');
+  var ep=document.getElementById('pill-emergency');
+  if(type==='home'){
+    hp.className='type-pill sel-home';
+    ep.className='type-pill';
+    ep.style.borderColor='var(--border)';
+    ep.style.color='var(--muted)';
+  } else {
+    ep.className='type-pill sel-emergency';
+    hp.className='type-pill';
+    hp.style.borderColor='var(--border)';
+    hp.style.color='var(--muted)';
+  }
+  document.getElementById('inp-type').value=type;
+}
+
+function renderServices(){
+  var g=document.getElementById('servicesGrid');
+  if(!g)return;
+  g.innerHTML=services.map(function(s){
+    return '<div class="service-card" onclick="openBookingStep1(null,\''+s.name+'\')">'
+      +'<div class="svc-icon">'+s.icon+'</div>'
+      +'<div class="svc-name">'+s.name+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function filterByType(type){
+  currentFilterType=type;
+  ['all','home','emergency'].forEach(function(t){
+    var btn=document.getElementById('tab-'+t);
+    if(btn){
+      if(t===type){
+        btn.style.borderColor='var(--accent)';
+        btn.style.background='rgba(255,107,53,0.15)';
+        btn.style.color='var(--accent)';
+      } else {
+        btn.style.borderColor='var(--border)';
+        btn.style.background='var(--card)';
+        btn.style.color='var(--muted)';
+      }
+    }
+  });
+  if(type==='all') renderMechanics(allMechanics);
+  else renderMechanics(allMechanics.filter(function(m){return m.type===type}));
+}
+
+function loadMechanics(){
+  var el=document.getElementById('mechanicsList');
+  if(!el)return;
+  el.innerHTML='<div class="loading-box"><div class="loading-spinner"></div><div>Firebase se load ho raha hai...</div></div>';
+  db.collection("mechanics").get().then(function(snapshot){
+    allMechanics=[];
+    snapshot.forEach(function(doc){allMechanics.push(Object.assign({id:doc.id},doc.data()))});
+    renderMechanics(allMechanics);
+    var t=document.getElementById('totalMechanics');
+    if(t)t.textContent=allMechanics.length;
+  }).catch(function(e){
+    el.innerHTML='<div class="loading-box" style="color:var(--red)">❌ Error: '+e.message+'</div>';
+  });
+}
+
+function renderMechanics(list){
+  var el=document.getElementById('mechanicsList');
+  if(!el)return;
+  if(list.length===0){
+    el.innerHTML='<div class="loading-box"><div style="font-size:40px;margin-bottom:12px">👨‍🔧</div><div style="font-size:15px;font-weight:700;color:var(--text)">Koi mechanic nahi</div><div style="font-size:12px;margin-top:8px">➕ Add pe tap karo!</div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(m){
+    var naam=m.naam||m.name||'Unknown';
+    var isEmergency=m.type==='emergency';
+    var typeBadge=isEmergency
+      ?'<span class="emergency-badge">🚗 Emergency</span>'
+      :'<span class="home-badge">🏠 Home Service</span>';
+    return '<div class="mechanic-card">'
+      +'<div class="mech-avatar">'+(isEmergency?'🚗':'👨‍🔧')+'</div>'
+      +'<div style="flex:1">'
+        +'<div class="mech-name">'+naam+'</div>'
+        +'<div class="mech-skill">'+(m.skill||'General')+'</div>'
+        +'<div class="mech-stats">'
+          +'<span class="stat">⭐ '+(m.rating||'5.0')+'</span>'
+          +'<span class="stat">📍 '+(m.area||'N/A')+'</span>'
+          +'<span class="verified">✓ Verified</span>'
+          +typeBadge
+        +'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:4px">📞 '+(m.phone||'N/A')+'</div>'
+      +'</div>'
+      +'<button class="book-btn" onclick="openBookingStep1('+JSON.stringify(m).replace(/"/g,'&quot;')+',null)">'+(m.price||'₹299')+'<br>Book</button>'
+      +'</div>';
+  }).join('');
+}
+
+function filterMechanics(q){
+  var list=currentFilterType==='all'?allMechanics:allMechanics.filter(function(m){return m.type===currentFilterType});
+  if(!q){renderMechanics(list);return;}
+  renderMechanics(list.filter(function(m){
+    return(m.naam||'').toLowerCase().includes(q.toLowerCase())||
+           (m.skill||'').toLowerCase().includes(q.toLowerCase())||
+           (m.area||'').toLowerCase().includes(q.toLowerCase());
+  }));
+}
+
+// BOOKING STEP 1 - User details
+function openBookingStep1(mechObj,serviceName){
+  currentMechanic=mechObj;
+  var mechName=mechObj?(mechObj.naam||mechObj.name||'Mechanic'):serviceName;
+  document.getElementById('modalContent').innerHTML=
+    '<div class="modal-title">📋 Aapki Details</div>'
+    +'<div class="modal-sub">'+mechName+' ko bhejne ke liye</div>'
+    +'<div class="form-group"><label class="form-label">👤 Aapka Naam *</label>'
+    +'<input class="form-input" id="user-naam" placeholder="e.g. Rahul Sharma" type="text" value="'+userInfo.naam+'"></div>'
+    +'<div class="form-group"><label class="form-label">📞 Aapka Phone *</label>'
+    +'<input class="form-input" id="user-phone" placeholder="e.g. 9876543210" type="tel" value="'+userInfo.phone+'"></div>'
+    +'<div class="form-group"><label class="form-label">📍 Aapka Address / Location *</label>'
+    +'<input class="form-input" id="user-address" placeholder="e.g. Gali No 5, Laxmi Nagar, Delhi" type="text" value="'+userInfo.address+'"></div>'
+    +'<div class="form-group"><label class="form-label">🔧 Kya Problem Hai *</label>'
+    +'<textarea class="form-input" id="user-problem" placeholder="e.g. AC thanda nahi kar raha, cooling nahi ho rahi" style="resize:none;height:80px"></textarea></div>'
+    +'<button onclick="openBookingStep2()" style="width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:16px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-head)">Aage Badho →</button>'
+    +'<div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--muted);cursor:pointer" onclick="closeModal()">Cancel</span></div>';
+  document.getElementById('bookModal').classList.add('open');
+}
+
+// BOOKING STEP 2 - Time + Confirm
+function openBookingStep2(){
+  var naam=document.getElementById('user-naam').value.trim();
+  var phone=document.getElementById('user-phone').value.trim();
+  var address=document.getElementById('user-address').value.trim();
+  var problem=document.getElementById('user-problem').value.trim();
+  if(!naam||!phone||!address||!problem){showToast('❌ Sab fields bharo!');return;}
+  userInfo={naam:naam,phone:phone,address:address};
+  var slots=["Aaj, 11:00 AM","Aaj, 2:00 PM","Aaj, 5:00 PM","Kal, 9:00 AM","Kal, 12:00 PM","Kal, 4:00 PM"];
+  selectedSlot=0;
+  var mechName=currentMechanic?(currentMechanic.naam||currentMechanic.name||'Mechanic'):'Service';
+  document.getElementById('modalContent').innerHTML=
+    '<div class="modal-title">⏰ Time Chuniye</div>'
+    +'<div class="modal-sub">'+mechName+' ke saath</div>'
+    +'<div class="time-slots">'
+    +slots.map(function(s,i){
+      return '<div class="time-slot '+(i===0?'sel':'')+'" id="slot-'+i+'" onclick="selectSlot2('+i+')">'
+        +'<div class="time">'+s.split(', ')[1]+'</div>'
+        +'<div class="day">'+s.split(', ')[0]+'</div>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="background:var(--card2);border-radius:14px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted)">'
+    +'<div style="color:var(--text);font-weight:700;margin-bottom:8px">📋 Booking Summary</div>'
+    +'<div>👤 '+naam+'</div>'
+    +'<div>📞 '+phone+'</div>'
+    +'<div>📍 '+address+'</div>'
+    +'<div>🔧 '+problem+'</div>'
+    +'</div>'
+    +'<button onclick="confirmBookingFinal(\''+naam+'\',\''+phone+'\',\''+address+'\',\''+problem.replace(/'/g,"\\'")+'\')" style="width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:16px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-head)">✅ Booking Confirm Karo</button>'
+    +'<div style="text-align:center;margin-top:12px"><span style="font-size:12px;color:var(--muted);cursor:pointer" onclick="closeModal()">Cancel</span></div>';
+}
+
+function selectSlot2(i){
+  selectedSlot=i;
+  document.querySelectorAll('.time-slot').forEach(function(el,idx){
+    el.classList.toggle('sel',idx===i);
+  });
+}
+
+function confirmBookingFinal(naam,phone,address,problem){
+  var slots=["Aaj, 11:00 AM","Aaj, 2:00 PM","Aaj, 5:00 PM","Kal, 9:00 AM","Kal, 12:00 PM","Kal, 4:00 PM"];
+  var bookingId='#FR-'+Math.floor(Math.random()*9000+1000);
+  var mechName=currentMechanic?(currentMechanic.naam||currentMechanic.name||'Mechanic'):'Service';
+  var mechPhone=currentMechanic?currentMechanic.phone:'';
+  var isEmergency=currentMechanic&&currentMechanic.type==='emergency';
+  var selectedTime=slots[selectedSlot];
+
+  myBookings.unshift({
+    service:mechName,mechanic:mechName,icon:isEmergency?'🚗':'✅',
+    date:selectedTime,status:"Confirmed",color:"#3DD68C",id:bookingId,
+    phone:mechPhone,naam:naam,address:address,problem:problem
+  });
+
+  // WhatsApp message
+  var waMsg='🔧 *FIXRIDEX - NAYA BOOKING!*\n\n'
+    +'📋 *Booking ID:* '+bookingId+'\n'
+    +'👤 *Customer:* '+naam+'\n'
+    +'📞 *Phone:* '+phone+'\n'
+    +'📍 *Address/Location:* '+address+'\n'
+    +'🔧 *Problem:* '+problem+'\n'
+    +'⏰ *Time:* '+selectedTime+'\n\n'
+    +(isEmergency
+      ?'🚨 *EMERGENCY BOOKING - Turant jaana hoga!*\n_(Reject karne ka option nahi hai)_'
+      :'✅ *Accept karne ke liye REPLY karo: ACCEPT*\n❌ *Reject karne ke liye REPLY karo: REJECT*');
+
+  var waUrl='https://wa.me/91'+mechPhone+'?text='+encodeURIComponent(waMsg);
+
+  document.getElementById('modalContent').innerHTML=
+    '<div class="success-box">'
+    +'<div class="success-emoji">🎉</div>'
+    +'<div class="success-title">Booking Confirmed!</div>'
+    +'<div class="success-sub">'+mechName+' ko WhatsApp notification bhejo!<br>'+(isEmergency?'<span style="color:var(--red)">🚨 Emergency — turant aayenge!</span>':'<span style="color:var(--blue)">🏠 Home Service — Accept/Reject karenge</span>')+'</div>'
+    +'<div class="booking-id-box"><div class="bid-label">Booking ID</div><div class="bid-val">'+bookingId+'</div></div>'
+    +(mechPhone
+      ?'<a href="'+waUrl+'" target="_blank" style="text-decoration:none"><button class="wa-btn">📱 WhatsApp pe Notify Karo</button></a>'
+      :'<div style="background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--red)">⚠️ Mechanic ka phone number nahi hai!</div>')
+    +'<button onclick="closeModal();goTo(\'bookings\')" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-head);margin-bottom:8px">📋 Bookings Dekho</button>'
+    +'<div style="font-size:12px;color:var(--muted);cursor:pointer;text-align:center" onclick="closeModal()">Close</div>'
+    +'</div>';
+  renderBookings();
+}
+
+function closeModal(){document.getElementById('bookModal').classList.remove('open')}
+
+function renderBookings(){
+  var el=document.getElementById('bookingsList');
+  if(!el)return;
+  if(myBookings.length===0){
+    el.innerHTML='<div class="loading-box"><div style="font-size:60px;margin-bottom:16px">📋</div><div>Koi booking nahi abhi</div></div>';
+    return;
+  }
+  el.innerHTML='<div style="height:16px"></div>'+myBookings.map(function(b,i){
+    var waMsg='🔧 *FIXRIDEX BOOKING UPDATE*\n\n📋 Booking ID: '+b.id+'\n👤 '+b.naam+'\n📍 '+b.address+'\n🔧 '+b.problem;
+    var waUrl=b.phone?'https://wa.me/91'+b.phone+'?text='+encodeURIComponent(waMsg):'#';
+    return '<div class="booking-card">'
+      +'<div class="status-badge" style="background:'+b.color+'18;color:'+b.color+'">'+b.status+'</div>'
+      +'<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px">'
+        +'<span style="font-size:32px">'+b.icon+'</span>'
+        +'<div style="flex:1">'
+          +'<div class="booking-title">'+b.service+'</div>'
+          +'<div class="booking-sub">⏰ '+b.date+'</div>'
+          +'<div class="booking-sub" style="color:var(--green)">'+b.id+'</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="booking-actions">'
+        +'<button class="sec-btn" style="background:rgba(255,71,87,0.1);color:var(--red)" onclick="cancelBooking('+i+')">Cancel</button>'
+        +(b.phone?'<a href="'+waUrl+'" target="_blank" style="text-decoration:none"><button class="sec-btn" style="background:rgba(37,211,102,0.15);color:#25D366">📱 WhatsApp</button></a>':'')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function cancelBooking(i){myBookings.splice(i,1);renderBookings();showToast('Booking cancel ho gayi!')}
+
+function addMechanicToFirebase(){
+  var naam=document.getElementById('inp-naam').value.trim();
+  var skill=document.getElementById('inp-skill').value.trim();
+  var phone=document.getElementById('inp-phone').value.trim();
+  var area=document.getElementById('inp-area').value.trim();
+  var rating=document.getElementById('inp-rating').value.trim();
+  var price=document.getElementById('inp-price').value.trim();
+  var type=document.getElementById('inp-type').value;
+  if(!naam||!skill||!phone||!area){showToast('❌ Sab fields bharo!');return;}
+  var btn=document.getElementById('addBtn');
+  var btnTop=document.getElementById('addBtnTop');
+  btn.textContent='⏳ Saving...';btn.disabled=true;
+  if(btnTop){btnTop.textContent='⏳';btnTop.disabled=true;}
+  db.collection("mechanics").add({naam:naam,skill:skill,phone:phone,area:area,rating:rating||'5.0',price:price||'₹299',type:type,createdAt:new Date().toISOString()}).then(function(){
+    showToast('✅ Mechanic save ho gaya!');
+    ['naam','skill','phone','area','rating','price'].forEach(function(f){document.getElementById('inp-'+f).value=''});
+    selectType('home');
+    btn.textContent='🔥 Save Karo';btn.disabled=false;
+    if(btnTop){btnTop.textContent='💾 Save';btnTop.disabled=false;}
+    setTimeout(function(){goTo('home')},1200);
+  }).catch(function(e){
+    showToast('❌ Error: '+e.message);
+    btn.textContent='🔥 Save Karo';btn.disabled=false;
+    if(btnTop){btnTop.textContent='💾 Save';btnTop.disabled=false;}
+  });
+}
+
+function renderProfileMenu(){
+  var items=[
+    {icon:"👨‍🔧",label:"Mechanics Manage Karo",action:"goTo('addMechanic')"},
+    {icon:"📊",label:"Statistics",action:"showToast('Coming soon!')"},
+    {icon:"💳",label:"Payment Settings",action:"showToast('Coming soon!')"},
+    {icon:"🔔",label:"Notifications",action:"showToast('Coming soon!')"},
+    {icon:"❓",label:"Help & Support",action:"showToast('Coming soon!')"},
+    {icon:"🚪",label:"Logout",action:"confirmLogout()"},
+  ];
+  var el=document.getElementById('profileMenu');
+  if(el)el.innerHTML=items.map(function(m){
+    return '<div class="menu-item" onclick="'+m.action+'">'
+      +'<span class="menu-icon">'+m.icon+'</span>'
+      +'<span class="menu-label">'+m.label+'</span>'
+      +'<span style="color:var(--muted);font-size:18px">›</span>'
+      +'</div>';
+  }).join('');
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2800);
+}
+
+renderServices();renderProfileMenu();updateNavs();
+
+// ========== USER ANALYTICS ==========
+function trackVisitor(){
+  var vid=localStorage.getItem('fr_vid');
+  if(!vid){
+    vid='u_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+    localStorage.setItem('fr_vid',vid);
+    db.collection("visitors").add({vid:vid,firstVisit:new Date().toISOString()}).then(updateCounts).catch(function(){});
+  } else {
+    db.collection("visitors").where("vid","==",vid).get().then(function(snap){
+      if(!snap.empty) snap.docs[0].ref.update({lastVisit:new Date().toISOString()});
+    }).catch(function(){});
+  }
+  updateCounts();
+}
+
+function updateCounts(){
+  db.collection("visitors").get().then(function(snap){
+    var el=document.getElementById('totalVisitors');
+    if(el)el.textContent=snap.size;
+  }).catch(function(){});
+  db.collection("installs").get().then(function(snap){
+    var el=document.getElementById('totalInstalls');
+    if(el)el.textContent=snap.size;
+  }).catch(function(){});
+}
+
+function trackInstall(){
+  var vid=localStorage.getItem('fr_vid')||'unknown';
+  db.collection("installs").add({vid:vid,installedAt:new Date().toISOString()}).then(function(){
+    updateCounts();
+    showToast('🎉 App install ho gaya!');
+  }).catch(function(){});
+}
+
+// ========== PWA INSTALL ==========
+var deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();deferredPrompt=e;
+  setTimeout(showInstallBanner,3000);
+});
+window.addEventListener('appinstalled',function(){trackInstall();hideInstallBanner();});
+
+function showInstallBanner(){
+  if(!deferredPrompt)return;
+  var b=document.getElementById('installBanner');
+  if(b)b.style.transform='translateX(-50%) translateY(0)';
+}
+function hideInstallBanner(){
+  var b=document.getElementById('installBanner');
+  if(b)b.style.transform='translateX(-50%) translateY(200px)';
+}
+function installApp(){
+  if(!deferredPrompt){showToast('Browser menu mein "Add to Home Screen" use karo!');return;}
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(r){
+    if(r.outcome==='accepted')trackInstall();
+    deferredPrompt=null;hideInstallBanner();
+  });
+}
+
+trackVisitor();
+</script>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(200px);width:90%;max-width:390px;background:linear-gradient(135deg,#1a0d05,#2a1208);border:1px solid rgba(255,107,53,0.35);border-radius:20px;padding:16px;z-index:9998;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div style="width:52px;height:52px;background:linear-gradient(135deg,#FF6B35,#FFB347);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🔧</div>
+  <div style="flex:1">
+    <div style="font-family:'Baloo 2',cursive;font-weight:800;font-size:15px;color:#F0F0F8">FixRidex Install Karo!</div>
+    <div style="font-size:11px;color:rgba(240,240,248,0.5);margin-top:2px">Home screen pe add karo — FREE!</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+    <button onclick="installApp()" style="background:linear-gradient(90deg,#FF6B35,#FFB347);border:none;border-radius:10px;padding:8px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',cursive">📲 Install</button>
+    <span onclick="hideInstallBanner()" style="font-size:10px;color:rgba(240,240,248,0.35);cursor:pointer">Baad mein</span>
+  </div>
+</div>
+
+</body>
+</html>
