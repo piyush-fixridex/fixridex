@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FixRidex — Aapka Mechanic, Aapke Paas</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Hind:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --orange: #FF6B00;
+    --orange-light: #FF8C35;
+    --orange-glow: rgba(255,107,0,0.25);
+    --dark: #0D0F14;
+    --dark2: #151820;
+    --dark3: #1E2230;
+    --card: #1A1D2E;
+    --border: rgba(255,107,0,0.15);
+    --text: #F0F2FF;
+    --text-muted: #8891AA;
+    --green: #00D97E;
+    --red: #FF4757;
+    --blue: #4A90E2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Hind', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 { font-family: 'Baloo 2', cursive; }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ===== SPLASH ===== */
+  #splash {
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a1200 0%, var(--dark) 70%);
+    animation: splashIn 0.5s ease;
+  }
+
+  @keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .splash-logo {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--orange), #FF3D00);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 60px var(--orange-glow), 0 20px 40px rgba(0,0,0,0.5);
+    animation: logoFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .splash-title {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--orange), #FFB300);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .splash-sub {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 50px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .splash-btn {
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: white;
+    border: none;
+    padding: 16px 50px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 30px var(--orange-glow);
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+  }
+
+  .splash-btn:active { transform: scale(0.97); }
+
+  /* ===== AUTH ===== */
+  #auth {
+    background: var(--dark);
+    padding: 0;
+  }
+
+  .auth-header {
+    background: linear-gradient(180deg, #1a1200 0%, var(--dark) 100%);
+    padding: 50px 24px 30px;
+    text-align: center;
+  }
+
+  .auth-logo-sm {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--orange), #FF3D00);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 14px;
+    box-shadow: 0 0 30px var(--orange-glow);
+  }
+
+  .auth-title { font-size: 28px; font-weight: 800; color: var(--text); }
+  .auth-sub { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+  .auth-tabs {
+    display: flex;
+    background: var(--dark2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .auth-tab {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .auth-tab.active {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
+  }
+
+  .auth-form { padding: 24px; flex: 1; }
+  .auth-panel { display: none; }
+  .auth-panel.active { display: block; }
+
+  .form-group { margin-bottom: 18px; }
+
+  .form-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 500;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--dark3);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'Hind', sans-serif;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .form-input:focus { border-color: var(--orange); }
+  .form-input::placeholder { color: var(--text-muted); }
+
+  .form-select {
+    width: 100%;
+    background: var(--dark3);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'Hind', sans-serif;
+    outline: none;
+    appearance: none;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 17px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px var(--orange-glow);
+    transition: all 0.3s;
+    margin-bottom: 14px;
+  }
+
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.6; }
+
+  .btn-google {
+    width: 100%;
+    background: var(--dark3);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    padding: 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-family: 'Hind', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+    margin-bottom: 14px;
+  }
+
+  .btn-google:active { transform: scale(0.98); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .forgot-link {
+    text-align: center;
+    color: var(--orange);
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    display: block;
+  }
+
+  .alert {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .alert.error { background: rgba(255,71,87,0.15); border: 1px solid rgba(255,71,87,0.3); color: #ff6b7a; }
+  .alert.success { background: rgba(0,217,126,0.15); border: 1px solid rgba(0,217,126,0.3); color: var(--green); }
+  .alert.show { display: block; }
+
+  /* ===== NAVBAR ===== */
+  .navbar {
+    background: var(--dark2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 22px;
+    background: linear-gradient(135deg, var(--orange), #FFB300);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--orange), #FF3D00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .logout-btn {
+    background: rgba(255,71,87,0.15);
+    color: var(--red);
+    border: 1px solid rgba(255,71,87,0.3);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Hind', sans-serif;
+  }
+
+  /* ===== USER HOME ===== */
+  #user-home {
+    background: var(--dark);
+  }
+
+  .home-hero {
+    background: linear-gradient(180deg, #1a1200 0%, var(--dark) 100%);
+    padding: 24px 20px;
+  }
+
+  .greeting {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .greeting-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .location-card {
+    background: var(--dark3);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .location-card-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .location-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .loc-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--dark2);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Hind', sans-serif;
+    transition: all 0.3s;
+    text-align: center;
+  }
+
+  .loc-btn.active {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: var(--orange-glow);
+  }
+
+  .location-input-wrap { position: relative; }
+
+  .location-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  .loc-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .loc-dot.green { background: var(--green); }
+  .loc-dot.orange { background: var(--orange); animation: pulse 1.5s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .search-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--orange), var(--orange-light));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px var(--orange-glow);
+    transition: all 0.3s;
+  }
+
+  .search-btn:active { transform: scale(0.98); }
+
+  /* Mechanics List */
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 20px 20px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mechanics-list { padding: 0 20px 100px; }
+
+  .mechanic-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    transition: all 0.3s;
+    animation: cardIn 0.4s ease;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mechanic-card:active { transform: scale(0.99); }
+
+  .mechanic-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .mechanic-avatar {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, var(--orange), #FF3D00);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .mechanic-info { flex: 1; }
+
+  .mechanic-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .mechanic-skill {
+    font-size: 13px;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+
+  .mechanic-area {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mechanic-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .meta-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .badge-type-home {
+    background: rgba(74,144,226,0.2);
+    color: #4A90E2;
+    border: 1px solid rgba(74,144,226,0.3);
+  }
+
+  .badge-type-emergency {
+    background: rgba(255,71,87,0.2);
+    color: var(--red);
+    border: 1px solid rgba(255,71,87,0.3);
+  }
+
+  .badge-rating {
+    background: rgba(255,179,0,0.2);
+    color: #FFB300;
+    border: 1px solid rgba(255,179,0,0.3);
+  }
+
+  .badge-price {
+    background: rgba(0,217,126,0.15);
+    color: var(--green);
+    border: 1px solid rgba(0,217,126,0.3);
+  }
+
+  .badge-distance {
+    background: rgba(255,107,0,0.15);
+    color: var(--orange);
+    border: 1px solid rgba(255,107,0,0.2);
+  }
+
+  .mechanic-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-call {
+    flex: 1;
+    background: linear-gradient(135deg, var(--green), #00B865);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-whatsapp {
+    flex: 1;
+    background: rgba(37,211,102,0.15);
+    color: #25D366;
+    border: 1px solid rgba(37,211,102,0.3);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .mechanic-bio {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--dark3);
+    border-radius: 10px;
+    border-left: 3px solid var(--orange);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 60px; margin-bottom: 16px; }
+  .empty-title { font-family: 'Baloo 2', cursive; font-size: 20px; color: var(--text); margin-bottom: 8px; }
+
+  /* ===== MECHANIC HOME ===== */
+  #mechanic-home {
+    background: var(--dark);
+  }
+
+  .mech-profile-card {
+    background: linear-gradient(135deg, var(--dark2), var(--dark3));
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    margin: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .mech-avatar-lg {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--orange), #FF3D00);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 14px;
+    box-shadow: 0 0 30px var(--orange-glow);
+  }
+
+  .mech-name-lg {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .mech-status-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .status-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+  }
+
+  .status-toggle input { display: none; }
+
+  .toggle-track {
+    width: 52px;
+    height: 28px;
+    background: var(--dark3);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .status-toggle input:checked + .toggle-track {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+
+  .status-toggle input:checked + .toggle-track .toggle-thumb {
+    left: 26px;
+  }
+
+  .status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .status-text.online { color: var(--green); }
+
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin: 20px;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--orange);
+  }
+
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ===== ADMIN ===== */
+  #admin-home {
+    background: var(--dark);
+  }
+
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .admin-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .admin-card:active { transform: scale(0.97); }
+  .admin-card-icon { font-size: 32px; margin-bottom: 10px; }
+  .admin-card-num { font-family: 'Baloo 2', cursive; font-size: 28px; font-weight: 800; color: var(--orange); }
+  .admin-card-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+  .add-mechanic-form {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    margin: 0 20px 20px;
+    padding: 20px;
+    display: none;
+  }
+
+  .add-mechanic-form.show { display: block; }
+
+  .form-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--orange);
+  }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--dark2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 10px 0 20px;
+    z-index: 100;
+  }
+
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px;
+  }
+
+  .nav-item-icon { font-size: 22px; margin-bottom: 4px; }
+  .nav-item-label { font-size: 11px; color: var(--text-muted); }
+  .nav-item.active .nav-item-label { color: var(--orange); }
+  .nav-item.active .nav-item-icon { filter: drop-shadow(0 0 6px var(--orange)); }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: flex-end;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-sheet {
+    background: var(--dark2);
+    border-radius: 24px 24px 0 0;
+    padding: 24px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* Loading */
+  .loader {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    z-index: 300;
+    display: none;
+    white-space: nowrap;
+  }
+
+  .toast.show { display: block; animation: toastIn 0.3s ease; }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* Role badge */
+  .role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .role-user { background: rgba(74,144,226,0.2); color: var(--blue); border: 1px solid rgba(74,144,226,0.3); }
+  .role-mechanic { background: rgba(255,107,0,0.2); color: var(--orange); border: 1px solid rgba(255,107,0,0.3); }
+  .role-admin { background: rgba(255,71,87,0.2); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+
+  .bookings-list { padding: 0 20px 100px; }
+
+  .booking-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .booking-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .booking-mechanic { font-weight: 600; font-size: 16px; }
+  .booking-date { font-size: 12px; color: var(--text-muted); }
+
+  .booking-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .status-pending { background: rgba(255,179,0,0.2); color: #FFB300; border: 1px solid rgba(255,179,0,0.3); }
+  .status-confirmed { background: rgba(0,217,126,0.2); color: var(--green); border: 1px solid rgba(0,217,126,0.3); }
+
+  .rating-stars { color: #FFB300; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" class="screen active">
+  <div class="splash-logo">🔧</div>
+  <div class="splash-title">FixRidex</div>
+  <div class="splash-sub">Har cheez ka mechanic,<br>ek hi jagah — aapke paas 🚀</div>
+  <button class="splash-btn" onclick="showAuth()">Shuru Karo 🚀</button>
+</div>
+
+<!-- AUTH -->
+<div id="auth" class="screen">
+  <div class="auth-header">
+    <div class="auth-logo-sm">🔧</div>
+    <div class="auth-title">FixRidex</div>
+    <div class="auth-sub">Login karke apna mechanic dhundho</div>
+  </div>
+
+  <div class="auth-tabs">
+    <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+    <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+  </div>
+
+  <div class="auth-form">
+    <div id="alert-box" class="alert"></div>
+
+    <!-- LOGIN -->
+    <div id="login-panel" class="auth-panel active">
+      <div class="form-group">
+        <label class="form-label">📧 Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="aapka@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔒 Password</label>
+        <input type="password" id="login-pass" class="form-input" placeholder="Password daalo">
+      </div>
+      <button class="btn-primary" onclick="doLogin()" id="login-btn">🚀 Login Karo</button>
+      <span class="forgot-link" onclick="doForgotPassword()">🔑 Password bhul gaye?</span>
+      <div class="divider">ya</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google se Login
+      </button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-panel" class="auth-panel">
+      <div class="form-group">
+        <label class="form-label">👤 Aapka Naam</label>
+        <input type="text" id="reg-name" class="form-input" placeholder="Poora naam">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📧 Email</label>
+        <input type="email" id="reg-email" class="form-input" placeholder="aapka@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📞 Phone</label>
+        <input type="tel" id="reg-phone" class="form-input" placeholder="10 digit mobile number">
+      </div>
+      <div class="form-group">
+        <label class="form-label">👥 Main hoon</label>
+        <select id="reg-role" class="form-select">
+          <option value="user">🚗 User — Mechanic dhundhna hai</option>
+          <option value="mechanic">🔧 Mechanic — Kaam karna hai</option>
+        </select>
+      </div>
+      <div id="mechanic-extra" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">🔧 Skill / Kaam</label>
+          <input type="text" id="reg-skill" class="form-input" placeholder="Jaise: Tyre puncture, Engine repair">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 Aapka Area</label>
+          <input type="text" id="reg-area" class="form-input" placeholder="Jaise: Sadar Bazar, Delhi">
+        </div>
+        <div class="form-group">
+          <label class="form-label">⚡ Service Type</label>
+          <select id="reg-service-type" class="form-select">
+            <option value="both">Dono — Home + Emergency</option>
+            <option value="home">🏠 Sirf Home Service</option>
+            <option value="emergency">🚗 Sirf Emergency</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">💰 Price (per visit)</label>
+          <input type="text" id="reg-price" class="form-input" placeholder="Jaise: ₹200 se shuru">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Bio (apne baare mein)</label>
+          <textarea id="reg-bio" class="form-input" rows="3" placeholder="Apna experience, speciality likhein..." style="resize:none;"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔒 Password</label>
+        <input type="password" id="reg-pass" class="form-input" placeholder="Min 6 characters">
+      </div>
+      <button class="btn-primary" onclick="doRegister()" id="reg-btn">🎉 Account Banao</button>
+      <div class="divider">ya</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google se Register
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- USER HOME -->
+<div id="user-home" class="screen">
+  <div class="navbar">
+    <div class="nav-brand">🔧 FixRidex</div>
+    <div class="nav-user">
+      <div class="nav-avatar" id="user-avatar">👤</div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div id="user-main-view">
+    <div class="home-hero">
+      <div class="greeting">Namaste! 👋</div>
+      <div class="greeting-name" id="user-greeting-name">Loading...</div>
+
+      <div class="location-card">
+        <div class="location-card-title">📍 Apna location choose karo</div>
+        <div class="location-options">
+          <div class="loc-btn active" id="gps-btn" onclick="selectGPS()">📡 GPS Auto</div>
+          <div class="loc-btn" id="manual-btn" onclick="selectManual()">✏️ Manual</div>
+        </div>
+
+        <div id="gps-view">
+          <div class="location-status">
+            <div class="loc-dot orange" id="loc-dot"></div>
+            <span id="loc-status-text">Location detect ho raha hai...</span>
+          </div>
+        </div>
+
+        <div id="manual-view" style="display:none;">
+          <div class="location-input-wrap">
+            <input type="text" id="manual-area" class="form-input" placeholder="Area type karo (Jaise: Sadar Bazar)" style="margin:0;">
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button class="search-btn" onclick="searchMechanics()">🔍 5km Mechanics Dhundho</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>👨‍🔧 Mechanics</span>
+      <span id="mechanics-count" style="font-size:14px;color:var(--text-muted);font-family:'Hind',sans-serif;font-weight:400;"></span>
+    </div>
+
+    <div class="mechanics-list" id="mechanics-list">
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">Mechanics dhundho</div>
+        <div style="font-size:14px;color:var(--text-muted);">Upar location select karke search karo</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-bookings-view" style="display:none;">
+    <div style="padding:20px 20px 0;">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:700;">📋 Meri Bookings</div>
+    </div>
+    <div class="bookings-list" id="bookings-list">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Koi booking nahi</div>
+        <div style="font-size:14px;color:var(--text-muted);">Mechanic book karo pehle!</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-profile-view" style="display:none;">
+    <div style="padding:20px;">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:700;margin-bottom:20px;">👤 Meri Profile</div>
+      <div class="mech-profile-card" style="text-align:left;">
+        <div id="profile-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="userNav('home')">
+      <div class="nav-item-icon">🏠</div>
+      <div class="nav-item-label">Home</div>
+    </div>
+    <div class="nav-item" id="nav-bookings" onclick="userNav('bookings')">
+      <div class="nav-item-icon">📋</div>
+      <div class="nav-item-label">Bookings</div>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="userNav('profile')">
+      <div class="nav-item-icon">👤</div>
+      <div class="nav-item-label">Profile</div>
+    </div>
+  </div>
+</div>
+
+<!-- MECHANIC HOME -->
+<div id="mechanic-home" class="screen">
+  <div class="navbar">
+    <div class="nav-brand">🔧 FixRidex</div>
+    <div class="nav-user">
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="mech-profile-card">
+    <div class="mech-avatar-lg">🔧</div>
+    <div class="mech-name-lg" id="mech-name-display">Loading...</div>
+    <div id="mech-skill-display" style="color:var(--orange);font-size:14px;margin-bottom:8px;"></div>
+    <div id="mech-area-display" style="color:var(--text-muted);font-size:13px;margin-bottom:12px;"></div>
+
+    <div class="mech-status-wrap">
+      <label class="status-toggle">
+        <input type="checkbox" id="online-toggle" onchange="toggleOnlineStatus()">
+        <div class="toggle-track">
+          <div class="toggle-thumb"></div>
+        </div>
+      </label>
+      <span class="status-text" id="status-label">Offline</span>
+    </div>
+
+    <div id="mech-bio-display" style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-top:8px;padding:10px;background:var(--dark3);border-radius:10px;"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="mech-bookings-count">0</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="mech-rating-display">⭐</div>
+      <div class="stat-label">Rating</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="mech-price-display">—</div>
+      <div class="stat-label">Price</div>
+    </div>
+  </div>
+
+  <div style="padding:0 20px;">
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:700;margin-bottom:12px;">📋 Incoming Requests</div>
+    <div id="mech-requests-list">
+      <div class="empty-state" style="padding:30px 0;">
+        <div class="empty-icon" style="font-size:40px;">⏳</div>
+        <div style="color:var(--text-muted);font-size:14px;">Koi request nahi abhi</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-item-icon">🏠</div>
+      <div class="nav-item-label">Home</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-icon">📋</div>
+      <div class="nav-item-label">Requests</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-icon">👤</div>
+      <div class="nav-item-label">Profile</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN HOME -->
+<div id="admin-home" class="screen">
+  <div class="navbar">
+    <div class="nav-brand">🔧 FixRidex Admin</div>
+    <div class="nav-user">
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div style="padding:20px 20px 0;">
+    <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:700;">👑 Admin Panel</div>
+    <div style="color:var(--text-muted);font-size:14px;margin-top:4px;">FixRidex ka poora control</div>
+  </div>
+
+  <div class="admin-grid">
+    <div class="admin-card">
+      <div class="admin-card-icon">👥</div>
+      <div class="admin-card-num" id="admin-users-count">0</div>
+      <div class="admin-card-label">Total Users</div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-icon">🔧</div>
+      <div class="admin-card-num" id="admin-mechs-count">0</div>
+      <div class="admin-card-label">Mechanics</div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-icon">📋</div>
+      <div class="admin-card-num" id="admin-bookings-count">0</div>
+      <div class="admin-card-label">Bookings</div>
+    </div>
+    <div class="admin-card" onclick="toggleAddMechForm()">
+      <div class="admin-card-icon">➕</div>
+      <div class="admin-card-num" style="font-size:18px;">Add</div>
+      <div class="admin-card-label">Mechanic Add</div>
+    </div>
+  </div>
+
+  <div class="add-mechanic-form" id="add-mech-form">
+    <div class="form-title">➕ Mechanic Add Karo</div>
+    <div class="form-group">
+      <label class="form-label">👨‍🔧 Naam</label>
+      <input type="text" id="am-name" class="form-input" placeholder="Mechanic ka naam">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔧 Skill</label>
+      <input type="text" id="am-skill" class="form-input" placeholder="Jaise: Tyre puncture, AC repair">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📞 WhatsApp</label>
+      <input type="tel" id="am-phone" class="form-input" placeholder="10 digit number">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📍 Area</label>
+      <input type="text" id="am-area" class="form-input" placeholder="Jaise: Sadar Bazar, Delhi">
+    </div>
+    <div class="form-group">
+      <label class="form-label">⚡ Type</label>
+      <select id="am-type" class="form-select">
+        <option value="both">Dono</option>
+        <option value="home">🏠 Home Service</option>
+        <option value="emergency">🚗 Emergency</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">⭐ Rating</label>
+      <input type="number" id="am-rating" class="form-input" placeholder="4.5" min="1" max="5" step="0.1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">💰 Price</label>
+      <input type="text" id="am-price" class="form-input" placeholder="₹200 se shuru">
+    </div>
+    <div class="form-group">
+      <label class="form-label">📝 Bio</label>
+      <textarea id="am-bio" class="form-input" rows="2" placeholder="Experience..." style="resize:none;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🌍 Latitude (optional)</label>
+      <input type="number" id="am-lat" class="form-input" placeholder="28.6139" step="0.0001">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🌍 Longitude (optional)</label>
+      <input type="number" id="am-lng" class="form-input" placeholder="77.2090" step="0.0001">
+    </div>
+    <button class="btn-primary" onclick="adminAddMechanic()">💾 Save Karo</button>
+  </div>
+
+  <div style="padding:0 20px 20px;">
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:700;margin-bottom:12px;">🔧 Saare Mechanics</div>
+    <div id="admin-mechs-list"></div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 Mechanic Book Karo</div>
+    <div id="booking-mechanic-info" style="margin-bottom:20px;"></div>
+    <div class="form-group">
+      <label class="form-label">📝 Problem describe karo</label>
+      <textarea id="booking-problem" class="form-input" rows="3" placeholder="Kya problem hai? Jaise: Tyre flat hai, Engine start nahi ho raha..." style="resize:none;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📍 Aapka address</label>
+      <input type="text" id="booking-address" class="form-input" placeholder="Poora address">
+    </div>
+    <button class="btn-primary" onclick="confirmBooking()">✅ Book Karo</button>
+    <button onclick="closeBookingModal()" style="width:100%;background:none;border:1px solid var(--border);color:var(--text-muted);padding:14px;border-radius:14px;font-size:15px;cursor:pointer;font-family:'Hind',sans-serif;">Baad Mein</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, serverTimestamp, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAk4pCG0_HKHX6mx2_4ao5UzS7JEnnj8EM",
+  authDomain: "fixridex.firebaseapp.com",
+  projectId: "fixridex",
+  storageBucket: "fixridex.firebasestorage.app",
+  messagingSenderId: "267704092013",
+  appId: "1:267704092013:web:4d7959db9c5073617ec8e2",
+  measurementId: "G-M85B4J9XJ1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// ===== GLOBAL STATE =====
+let currentUser = null;
+let currentUserData = null;
+let selectedMechanic = null;
+let userLat = null, userLng = null;
+let locationMode = 'gps';
+
+// ===== HELPERS =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showAlert(msg, type='error') {
+  const a = document.getElementById('alert-box');
+  a.textContent = msg;
+  a.className = `alert ${type} show`;
+  setTimeout(() => a.classList.remove('show'), 4000);
+}
+
+function setLoading(btnId, loading, text) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading ? `<span class="loader"></span> ${text}` : text;
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      currentUserData = snap.data();
+      routeByRole(currentUserData.role);
+    } else {
+      // New Google user — show role picker
+      currentUserData = { name: user.displayName || 'User', email: user.email, role: 'user' };
+      await setDoc(doc(db, 'users', user.uid), {
+        ...currentUserData,
+        phone: '',
+        createdAt: serverTimestamp()
+      });
+      routeByRole('user');
+    }
+  } else {
+    currentUser = null;
+    currentUserData = null;
+  }
+});
+
+function routeByRole(role) {
+  if (role === 'admin') {
+    showScreen('admin-home');
+    loadAdminData();
+  } else if (role === 'mechanic') {
+    showScreen('mechanic-home');
+    loadMechanicDashboard();
+  } else {
+    showScreen('user-home');
+    loadUserHome();
+  }
+}
+
+// ===== NAVIGATION =====
+window.showAuth = () => showScreen('auth');
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+window.switchAuthTab = (tab) => {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchAuthTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`${tab}-panel`).classList.add('active');
+};
+
+document.getElementById('reg-role').addEventListener('change', function() {
+  document.getElementById('mechanic-extra').style.display = this.value === 'mechanic' ? 'block' : 'none';
+});
+
+// ===== AUTH FUNCTIONS =====
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) return showAlert('Email aur password daalo!');
+  setLoading('login-btn', true, 'Login ho raha hai...');
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    showToast('✅ Login successful!');
+  } catch (e) {
+    let msg = 'Login failed. Check email/password.';
+    if (e.code === 'auth/user-not-found') msg = 'Account nahi mila. Register karo!';
+    if (e.code === 'auth/wrong-password') msg = 'Password galat hai!';
+    if (e.code === 'auth/invalid-email') msg = 'Email sahi nahi hai!';
+    if (e.code === 'auth/invalid-credential') msg = 'Email ya password galat hai!';
+    showAlert(msg);
+  }
+  setLoading('login-btn', false, '🚀 Login Karo');
+};
+
+window.doRegister = async () => {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const role = document.getElementById('reg-role').value;
+  const pass = document.getElementById('reg-pass').value;
+
+  if (!name || !email || !phone || !pass) return showAlert('Saari fields bharo!');
+  if (pass.length < 6) return showAlert('Password min 6 characters!');
+
+  setLoading('reg-btn', true, 'Account ban raha hai...');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+
+    const userData = {
+      name, email, phone, role,
+      createdAt: serverTimestamp()
+    };
+
+    if (role === 'mechanic') {
+      userData.skill = document.getElementById('reg-skill').value.trim();
+      userData.area = document.getElementById('reg-area').value.trim();
+      userData.serviceType = document.getElementById('reg-service-type').value;
+      userData.price = document.getElementById('reg-price').value.trim();
+      userData.bio = document.getElementById('reg-bio').value.trim();
+      userData.rating = 5.0;
+      userData.isOnline = false;
+      userData.lat = null;
+      userData.lng = null;
+    }
+
+    await setDoc(doc(db, 'users', cred.user.uid), userData);
+    showToast('✅ Account ban gaya!');
+  } catch (e) {
+    let msg = 'Register failed.';
+    if (e.code === 'auth/email-already-in-use') msg = 'Email already registered hai!';
+    showAlert(msg);
+  }
+  setLoading('reg-btn', false, '🎉 Account Banao');
+};
+
+window.doGoogleLogin = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider);
+    showToast('✅ Google login successful!');
+  } catch (e) {
+    showAlert('Google login failed. Dobara try karo.');
+  }
+};
+
+window.doForgotPassword = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) return showAlert('Pehle email daalo!');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showAlert('✅ Reset email bhej diya! Check karo.', 'success');
+  } catch (e) {
+    showAlert('Email nahi mila. Check karo!');
+  }
+};
+
+window.doLogout = async () => {
+  await signOut(auth);
+  showScreen('splash');
+  showToast('👋 Logout ho gaye!');
+};
+
+// ===== USER HOME =====
+function loadUserHome() {
+  const name = currentUserData?.name || currentUser?.displayName || 'User';
+  document.getElementById('user-greeting-name').textContent = `${name} 👋`;
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+  startGPS();
+}
+
+window.userNav = (tab) => {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`nav-${tab}`)?.classList.add('active');
+  document.getElementById('user-main-view').style.display = tab === 'home' ? 'block' : 'none';
+  document.getElementById('user-bookings-view').style.display = tab === 'bookings' ? 'block' : 'none';
+  document.getElementById('user-profile-view').style.display = tab === 'profile' ? 'block' : 'none';
+  if (tab === 'bookings') loadBookings();
+  if (tab === 'profile') loadProfileView();
+};
+
+function loadProfileView() {
+  const d = currentUserData;
+  document.getElementById('profile-info').innerHTML = `
+    <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:700;margin-bottom:4px;">${d.name}</div>
+    <div style="color:var(--text-muted);font-size:14px;margin-bottom:8px;">${d.email}</div>
+    <div style="color:var(--text-muted);font-size:14px;margin-bottom:12px;">📞 ${d.phone || 'Not set'}</div>
+    <span class="role-badge role-${d.role}">${d.role === 'user' ? '🚗 User' : d.role === 'mechanic' ? '🔧 Mechanic' : '👑 Admin'}</span>
+  `;
+}
+
+// ===== GPS =====
+function startGPS() {
+  if (!navigator.geolocation) {
+    document.getElementById('loc-status-text').textContent = 'GPS support nahi hai';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      document.getElementById('loc-dot').className = 'loc-dot green';
+      document.getElementById('loc-status-text').textContent = `📍 Location mila! (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`;
+    },
+    () => {
+      document.getElementById('loc-dot').className = 'loc-dot';
+      document.getElementById('loc-status-text').textContent = '❌ GPS nahi mila. Manual use karo.';
+    }
+  );
+}
+
+window.selectGPS = () => {
+  locationMode = 'gps';
+  document.getElementById('gps-btn').classList.add('active');
+  document.getElementById('manual-btn').classList.remove('active');
+  document.getElementById('gps-view').style.display = 'block';
+  document.getElementById('manual-view').style.display = 'none';
+  startGPS();
+};
+
+window.selectManual = () => {
+  locationMode = 'manual';
+  document.getElementById('manual-btn').classList.add('active');
+  document.getElementById('gps-btn').classList.remove('active');
+  document.getElementById('gps-view').style.display = 'none';
+  document.getElementById('manual-view').style.display = 'block';
+};
+
+// ===== SEARCH MECHANICS =====
+window.searchMechanics = async () => {
+  const list = document.getElementById('mechanics-list');
+  list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);"><span class="loader" style="border-color:rgba(255,107,0,0.3);border-top-color:var(--orange);"></span> Mechanics dhundh rahe hain...</div>`;
+
+  let searchArea = '';
+  if (locationMode === 'manual') {
+    searchArea = document.getElementById('manual-area').value.trim().toLowerCase();
+    if (!searchArea) return showToast('⚠️ Area type karo!');
+  } else if (!userLat) {
+    return showToast('⚠️ GPS location nahi mila! Manual try karo.');
+  }
+
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    const snap2 = await getDocs(collection(db, 'mechanics'));
+    
+    let mechanics = [];
+    
+    // From users collection (registered mechanics)
+    snap.docs.forEach(d => {
+      const data = d.data();
+      if (data.role === 'mechanic') mechanics.push({id: d.id, ...data});
+    });
+    
+    // From mechanics collection (admin added)
+    snap2.docs.forEach(d => {
+      mechanics.push({id: d.id, ...d.data()});
+    });
+
+    let filtered = [];
+
+    if (locationMode === 'gps' && userLat) {
+      mechanics.forEach(m => {
+        if (m.lat && m.lng) {
+          const dist = haversine(userLat, userLng, m.lat, m.lng);
+          if (dist <= 5) filtered.push({...m, distance: dist.toFixed(1)});
+        } else {
+          filtered.push({...m, distance: null});
+        }
+      });
+      filtered.sort((a, b) => (a.distance || 99) - (b.distance || 99));
+    } else {
+      mechanics.forEach(m => {
+        const area = (m.area || '').toLowerCase();
+        if (area.includes(searchArea) || searchArea.includes(area.split(' ')[0])) {
+          filtered.push({...m, distance: null});
+        }
+      });
+    }
+
+    document.getElementById('mechanics-count').textContent = filtered.length ? `(${filtered.length} mile)` : '';
+
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">😔</div>
+          <div class="empty-title">Koi mechanic nahi mila</div>
+          <div style="font-size:14px;color:var(--text-muted);">Is area mein abhi koi mechanic register nahi hai</div>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(m => `
+      <div class="mechanic-card">
+        <div class="mechanic-top">
+          <div class="mechanic-avatar">🔧</div>
+          <div class="mechanic-info">
+            <div class="mechanic-name">${m.name || 'Mechanic'}</div>
+            <div class="mechanic-skill">${m.skill || 'General Mechanic'}</div>
+            <div class="mechanic-area">📍 ${m.area || 'Area not set'}${m.distance ? ` • ${m.distance} km door` : ''}</div>
+          </div>
+        </div>
+        ${m.bio ? `<div class="mechanic-bio">"${m.bio}"</div>` : ''}
+        <div class="mechanic-meta">
+          ${m.serviceType === 'home' || m.serviceType === 'both' ? '<span class="meta-badge badge-type-home">🏠 Home</span>' : ''}
+          ${m.serviceType === 'emergency' || m.serviceType === 'both' ? '<span class="meta-badge badge-type-emergency">🚗 Emergency</span>' : ''}
+          ${m.rating ? `<span class="meta-badge badge-rating">⭐ ${m.rating}</span>` : ''}
+          ${m.price ? `<span class="meta-badge badge-price">💰 ${m.price}</span>` : ''}
+          ${m.distance ? `<span class="meta-badge badge-distance">📍 ${m.distance} km</span>` : ''}
+        </div>
+        <div class="mechanic-actions">
+          <button class="btn-call" onclick="openBookingModal('${m.id}', '${m.name}', '${m.skill || ''}')">📅 Book Karo</button>
+          ${m.phone ? `<button class="btn-whatsapp" onclick="window.open('https://wa.me/91${m.phone}?text=Namaste! FixRidex se contact kar raha hun')">💬 WhatsApp</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+  } catch (e) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-title">Error</div><div style="font-size:14px;color:var(--text-muted);">${e.message}</div></div>`;
+  }
+};
+
+// ===== BOOKING =====
+window.openBookingModal = (mechId, mechName, mechSkill) => {
+  selectedMechanic = { id: mechId, name: mechName, skill: mechSkill };
+  document.getElementById('booking-mechanic-info').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--dark3);padding:14px;border-radius:12px;">
+      <div style="font-size:28px;">🔧</div>
+      <div>
+        <div style="font-family:'Baloo 2',cursive;font-weight:700;">${mechName}</div>
+        <div style="color:var(--orange);font-size:13px;">${mechSkill}</div>
+      </div>
+    </div>`;
+  document.getElementById('booking-modal').classList.add('show');
+};
+
+window.closeBookingModal = () => {
+  document.getElementById('booking-modal').classList.remove('show');
+  selectedMechanic = null;
+};
+
+window.confirmBooking = async () => {
+  const problem = document.getElementById('booking-problem').value.trim();
+  const address = document.getElementById('booking-address').value.trim();
+  if (!problem) return showToast('⚠️ Problem describe karo!');
+  if (!address) return showToast('⚠️ Address daalo!');
+
+  try {
+    await addDoc(collection(db, 'bookings'), {
+      userId: currentUser.uid,
+      userName: currentUserData.name,
+      userPhone: currentUserData.phone || '',
+      mechanicId: selectedMechanic.id,
+      mechanicName: selectedMechanic.name,
+      problem, address,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    closeBookingModal();
+    showToast('✅ Booking ho gayi! Mechanic contact karega.');
+    document.getElementById('booking-problem').value = '';
+    document.getElementById('booking-address').value = '';
+  } catch (e) {
+    showToast('❌ Booking failed. Dobara try karo.');
+  }
+};
+
+// ===== BOOKINGS LIST =====
+async function loadBookings() {
+  const list = document.getElementById('bookings-list');
+  try {
+    const q = query(collection(db, 'bookings'), where('userId', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Koi booking nahi</div><div style="font-size:14px;color:var(--text-muted);">Mechanic book karo pehle!</div></div>`;
+      return;
+    }
+    list.innerHTML = snap.docs.map(d => {
+      const b = d.data();
+      const date = b.createdAt?.toDate?.()?.toLocaleDateString('hi-IN') || 'Abhi';
+      return `
+        <div class="booking-card">
+          <div class="booking-top">
+            <div>
+              <div class="booking-mechanic">🔧 ${b.mechanicName}</div>
+              <div class="booking-date">${date}</div>
+            </div>
+            <span class="booking-status status-${b.status}">${b.status === 'pending' ? '⏳ Pending' : '✅ Confirmed'}</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-muted);">📝 ${b.problem}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">📍 ${b.address}</div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-title">Error</div></div>`;
+  }
+}
+
+// ===== MECHANIC DASHBOARD =====
+function loadMechanicDashboard() {
+  const d = currentUserData;
+  document.getElementById('mech-name-display').textContent = d.name || 'Mechanic';
+  document.getElementById('mech-skill-display').textContent = d.skill || '';
+  document.getElementById('mech-area-display').textContent = `📍 ${d.area || 'Area not set'}`;
+  document.getElementById('mech-rating-display').textContent = d.rating || '5.0';
+  document.getElementById('mech-price-display').textContent = d.price || '—';
+  document.getElementById('mech-bio-display').textContent = d.bio || '';
+
+  const toggle = document.getElementById('online-toggle');
+  toggle.checked = d.isOnline || false;
+  updateStatusLabel(d.isOnline);
+
+  loadMechanicBookings();
+}
+
+window.toggleOnlineStatus = async () => {
+  const isOnline = document.getElementById('online-toggle').checked;
+  updateStatusLabel(isOnline);
+  await updateDoc(doc(db, 'users', currentUser.uid), { isOnline });
+  showToast(isOnline ? '🟢 Aap online hain!' : '⚫ Aap offline hain');
+};
+
+function updateStatusLabel(isOnline) {
+  const label = document.getElementById('status-label');
+  label.textContent = isOnline ? 'Online' : 'Offline';
+  label.className = isOnline ? 'status-text online' : 'status-text';
+}
+
+async function loadMechanicBookings() {
+  try {
+    const q = query(collection(db, 'bookings'), where('mechanicId', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    document.getElementById('mech-bookings-count').textContent = snap.size;
+
+    if (snap.empty) return;
+    const list = document.getElementById('mech-requests-list');
+    list.innerHTML = snap.docs.filter(d => d.data().status === 'pending').map(d => {
+      const b = d.data();
+      return `
+        <div class="booking-card">
+          <div class="booking-mechanic">👤 ${b.userName}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin:6px 0;">📝 ${b.problem}</div>
+          <div style="font-size:13px;color:var(--text-muted);">📍 ${b.address}</div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button onclick="acceptBooking('${d.id}', '${b.userPhone}')" style="flex:1;background:linear-gradient(135deg,var(--green),#00B865);color:white;border:none;padding:10px;border-radius:8px;font-family:'Baloo 2',cursive;font-size:14px;cursor:pointer;">✅ Accept</button>
+            ${b.userPhone ? `<button onclick="window.open('https://wa.me/91${b.userPhone}')" style="flex:1;background:rgba(37,211,102,0.15);color:#25D366;border:1px solid rgba(37,211,102,0.3);padding:10px;border-radius:8px;font-family:'Baloo 2',cursive;font-size:14px;cursor:pointer;">💬 WhatsApp</button>` : ''}
+          </div>
+        </div>`;
+    }).join('') || `<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:14px;">Koi pending request nahi</div>`;
+  } catch(e) {}
+}
+
+window.acceptBooking = async (bookingId, userPhone) => {
+  await updateDoc(doc(db, 'bookings', bookingId), { status: 'confirmed' });
+  showToast('✅ Booking accept kar li!');
+  loadMechanicBookings();
+};
+
+// ===== ADMIN =====
+async function loadAdminData() {
+  try {
+    const usersSnap = await getDocs(collection(db, 'users'));
+    const bookingsSnap = await getDocs(collection(db, 'bookings'));
+    const mechsSnap = await getDocs(collection(db, 'mechanics'));
+
+    const mechanics = usersSnap.docs.filter(d => d.data().role === 'mechanic');
+    const allMechs = [...mechanics, ...mechsSnap.docs];
+
+    document.getElementById('admin-users-count').textContent = usersSnap.size;
+    document.getElementById('admin-mechs-count').textContent = allMechs.length;
+    document.getElementById('admin-bookings-count').textContent = bookingsSnap.size;
+
+    const mechsList = document.getElementById('admin-mechs-list');
+    mechsList.innerHTML = allMechs.map(d => {
+      const m = d.data();
+      return `
+        <div class="mechanic-card">
+          <div class="mechanic-top">
+            <div class="mechanic-avatar">🔧</div>
+            <div class="mechanic-info">
+              <div class="mechanic-name">${m.name || 'Mechanic'}</div>
+              <div class="mechanic-skill">${m.skill || ''}</div>
+              <div class="mechanic-area">📍 ${m.area || ''}</div>
+            </div>
+          </div>
+          <div class="mechanic-meta">
+            ${m.rating ? `<span class="meta-badge badge-rating">⭐ ${m.rating}</span>` : ''}
+            ${m.price ? `<span class="meta-badge badge-price">💰 ${m.price}</span>` : ''}
+            <span class="meta-badge ${m.isOnline ? 'badge-type-home' : ''}" style="${m.isOnline ? '' : 'background:rgba(136,145,170,0.15);color:var(--text-muted);border:1px solid var(--border);'}">${m.isOnline ? '🟢 Online' : '⚫ Offline'}</span>
+          </div>
+        </div>`;
+    }).join('') || '<div style="text-align:center;padding:20px;color:var(--text-muted);">Koi mechanic nahi</div>';
+  } catch(e) {}
+}
+
+window.toggleAddMechForm = () => {
+  document.getElementById('add-mech-form').classList.toggle('show');
+};
+
+window.adminAddMechanic = async () => {
+  const data = {
+    name: document.getElementById('am-name').value.trim(),
+    skill: document.getElementById('am-skill').value.trim(),
+    phone: document.getElementById('am-phone').value.trim(),
+    area: document.getElementById('am-area').value.trim(),
+    serviceType: document.getElementById('am-type').value,
+    rating: parseFloat(document.getElementById('am-rating').value) || 5.0,
+    price: document.getElementById('am-price').value.trim(),
+    bio: document.getElementById('am-bio').value.trim(),
+    lat: parseFloat(document.getElementById('am-lat').value) || null,
+    lng: parseFloat(document.getElementById('am-lng').value) || null,
+    isOnline: true,
+    createdAt: serverTimestamp()
+  };
+
+  if (!data.name || !data.skill || !data.area) return showToast('⚠️ Naam, Skill aur Area zaroori hai!');
+
+  try {
+    await addDoc(collection(db, 'mechanics'), data);
+    showToast('✅ Mechanic add ho gaya!');
+    document.getElementById('add-mech-form').classList.remove('show');
+    ['am-name','am-skill','am-phone','am-area','am-rating','am-price','am-bio','am-lat','am-lng'].forEach(id => document.getElementById(id).value = '');
+    loadAdminData();
+  } catch(e) {
+    showToast('❌ Error: ' + e.message);
+  }
+};
+
+</script>
+</body>
+</html>
